@@ -15,7 +15,7 @@ RCT_EXPORT_METHOD(set:(NSString *)data
 {
   NSUserDefaults *ud = [self getUD:suite];
   [ud setObject:data forKey:PREFERENCE_KEY];
-  resolve([self getPreferences:suite]);
+  resolve([self getPreferencesWithSuite:suite]);
 }
 
 RCT_EXPORT_METHOD(clear:(NSString *)suite
@@ -24,14 +24,12 @@ RCT_EXPORT_METHOD(clear:(NSString *)suite
 {
   NSUserDefaults *ud = [self getUD:suite];
   [ud removeObjectForKey:PREFERENCE_KEY];
-  resolve([self getPreferences:suite]);
+  resolve([self getPreferencesWithSuite:suite]);
 }
 
-RCT_EXPORT_METHOD(getPreferences:(NSString *)suite
-                  resolve:(RCTPromiseResolveBlock)resolve
-                  reject:(RCTPromiseRejectBlock)reject)
+RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD(getPreferences:(NSString *)suite)
 {
-  resolve([self getPreferences:suite]);
+  return [self getPreferencesWithSuite:suite];
 }
 
 - (NSUserDefaults *)getUD:(NSString *)suite {
@@ -44,7 +42,7 @@ RCT_EXPORT_METHOD(getPreferences:(NSString *)suite
   return ud;
 }
 
-- (NSString *)getPreferences:(NSString *)suite
+- (NSString *)getPreferencesWithSuite:(NSString *)suite
 {
   NSUserDefaults *ud = [self getUD:suite];
   NSString *preferences = [ud stringForKey:PREFERENCE_KEY];
@@ -53,7 +51,7 @@ RCT_EXPORT_METHOD(getPreferences:(NSString *)suite
 
 - (NSDictionary *)constantsToExport
 {
-  return @{ @"InitialPreferences": [self getPreferences:nil] };
+  return @{ @"InitialPreferences": [self getPreferencesWithSuite:nil] };
 }
 
 @end
