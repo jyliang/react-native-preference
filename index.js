@@ -50,7 +50,12 @@ function getPreferences(suite?:String) {
         return PREFERENCES
     } else {
         if (SUITE_PREFERENCES[suite] == null) {
-            SUITE_PREFERENCES[suite] = {}
+            try {
+                SUITE_PREFERENCES[suite] = JSON.parse(RNPreferenceManager.getPreferences(suite));
+            } catch (err) {
+                SUITE_PREFERENCES[suite] = {}
+                console.warn(`preference parse exception:${err.message}`);
+            }
         }
         return SUITE_PREFERENCES[suite]
     }

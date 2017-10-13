@@ -27,6 +27,13 @@ RCT_EXPORT_METHOD(clear:(NSString *)suite
   resolve([self getPreferences:suite]);
 }
 
+RCT_EXPORT_METHOD(getPreferences:(NSString *)suite
+                  resolve:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject)
+{
+  resolve([self getPreferences:suite]);
+}
+
 - (NSUserDefaults *)getUD:(NSString *)suite {
   NSUserDefaults *ud;
   if (suite.length > 0) {
