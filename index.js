@@ -3,6 +3,7 @@ import { NativeModules, NativeEventEmitter } from 'react-native';
 const { RNPreferenceManager } = NativeModules;
 
 let PREFERENCES = {};
+let SUITE_PREFERENCES = {};
 
 try {
     PREFERENCES = JSON.parse(RNPreferenceManager.InitialPreferences);
@@ -10,17 +11,18 @@ try {
     console.warn(`preference parse exception:${err.message}`);
 }
 
-function get(key?: String) {
+function get(key?: String, suite?:String) {
+    let preferences = getPreferences(suite)
     if (key != null) {
-        return PREFERENCES[key];
+        return preferences[key];
     } else {
         return {
-            ...PREFERENCES
+            ...preferences
         };
     }
 }
 
-function set(key: String|Object, value?: String) {
+function set(key: String|Object, value?: String, suite?:String) {
     let data = {};
 
     if (typeof key === 'object') {
@@ -30,23 +32,35 @@ function set(key: String|Object, value?: String) {
     } else {
         data[key] = value;
     }
-
+    let preferences = getPreferences(suite)
     Object.keys(data).forEach((name) => {
         const stringfied = JSON.stringify(data[name]);
         if (stringfied) {
-            PREFERENCES[name] = JSON.parse(stringfied);
+            preferences[name] = JSON.parse(stringfied);
         } else {
-            delete PREFERENCES[name];
+            delete preferences[name];
         }
     });
 
-    return RNPreferenceManager.set(JSON.stringify(PREFERENCES));
+    return RNPreferenceManager.set(JSON.stringify(preferences), suite);
 }
 
-function clear(key?: String|Array) {
+function getPreferences(suite?:String) {
+    if (suite == null) {
+        return PREFERENCES
+    } else {
+        if (SUITE_PREFERENCES[suite] == null) {
+            SUITE_PREFERENCES[suite] = {}
+        }
+        return SUITE_PREFERENCES[suite]
+    }
+}
+
+function clear(key?: String|Array, suite?:String) {
+    let preferences = getPreferences(suite)
     if (key == null) {
-        PREFERENCES = {};
-        return RNPreferenceManager.clear();
+        preferences = {};
+        return RNPreferenceManager.clear(suite);
     } else {
         let keys;
         if (!Array.isArray(key)) {
@@ -54,10 +68,10 @@ function clear(key?: String|Array) {
         }
 
         keys.map((name) => {
-            delete PREFERENCES[name];
+            delete preferences[name];
         });
 
-        return RNPreferenceManager.set(JSON.stringify(PREFERENCES));
+        return RNPreferenceManager.set(JSON.stringify(preferences), suite);
     }
 }
 
